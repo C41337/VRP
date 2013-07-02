@@ -1,0 +1,56 @@
+name: VRP
+main: com.jordair.gmail.VoteReceiver.VoteReceiverPlugin
+version: 1.0
+depend: [SQLibrary, Votifier]
+author: MrTeePee
+
+commands:
+  vr:
+    description: Display the top 10 voters.
+  vc:
+    description: Display the number of votes made since voting opened.
+  vs:
+    description: Spoof a vote.
+  vrc:
+    description: Clear the voting log.
+    aliases: vclear
+  vro:
+    description: Open voting.
+    aliases: vopen
+  vrx:
+    description: Close voting.
+    aliases: vclose
+  vr (#):
+    description: Display the top x voters.
+
+permissions:
+  votes.user:
+    description: Ability to view data and see live updates.
+    children:
+      votes.view: true
+      votes.alert: true
+  votes.admin:
+    description: Ability to use all commands.
+    children:
+    votes.user: true
+    votes.clear: true
+    votes.open: true
+    votes.close: true
+  votes.view:
+    description: Ability to view current vote data.
+    default: true
+  votes.alert:
+    description: Ability to see voting updates in chat.
+    default: true
+  votes.clear:
+    description: Ability to clear database.
+    default: op
+  votes.open:
+    description: Ability to open voting.
+    default: op
+  votes.close:
+    description: Ability to close voting.
+    default: op
+  votes.spoof:
+    description: Ability to submit a fake vote.
+    default: op

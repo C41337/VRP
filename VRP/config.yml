@@ -1,0 +1,22 @@
+SQL:
+  HOST: "127.0.0.1"
+  PORT: 3306
+  DATABASE: "vr"
+  USER: "admin"
+  PASS: "password"
+  
+# Whether or not to send all players online a message when receiving a vote.
+Alert_on_vote: true
+
+# Format your dates yyyy-mm-dd
+# Format your times hh:mm:ss in 24-hour time format in the server machine's timezone.
+
+# Logs will be cleared before opening and all votes will cease to register after closing.
+Schedule:
+  ENABLED: true
+  OPEN:
+    DATE: "2013-07-01"
+    TIME: "00:00:00"
+  CLOSE:
+    DATE: "2013-08-01"
+    TIME: "00:00:00"
