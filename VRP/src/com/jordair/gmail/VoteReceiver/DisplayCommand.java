@@ -14,29 +14,21 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 public class DisplayCommand implements CommandExecutor {
-
-	private VoteReceiverPlugin plugin;
 	String zone = Calendar.getInstance().getTimeZone().getDisplayName(false, TimeZone.SHORT);
-
-	public DisplayCommand(VoteReceiverPlugin plugin) {
-		this.plugin = plugin;
-	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (sender.hasPermission("votes.view")) {
-			if (plugin.getManager() != null && plugin.getManager().isConnected()) {
-				if (command.getName().equalsIgnoreCase("vr")) {
-					displayVotes(sender, args);
-					return true;
-				} else if (command.getName().equalsIgnoreCase("vc")) {
-					if (plugin.isOpen()) {
-						displayTotal(sender);
-					} else {
-						sender.sendMessage("Voting is not open at the moment.");
-					}
-					return true;
+		if (VoteReceiverPlugin.instance.getManager() != null && VoteReceiverPlugin.instance.getManager().isConnected()) {
+			if (command.getName().equalsIgnoreCase("vr")) {
+				displayVotes(sender, args);
+				return true;
+			} else if (command.getName().equalsIgnoreCase("vc")) {
+				if (VoteReceiverPlugin.instance.isOpen()) {
+					displayTotal(sender);
+				} else {
+					sender.sendMessage("Voting is not open at the moment.");
 				}
+				return true;
 			}
 		}
 
@@ -54,20 +46,20 @@ public class DisplayCommand implements CommandExecutor {
 		 * Iterate through the users in the database.
 		 */
 		int votes = 0;
-		for (String user : plugin.getManager().getKeys("votedata")) {
+		for (String user : VoteReceiverPlugin.instance.getManager().getKeys("votedata")) {
 			/*
 			 * Get their number of votes and add it to the total.
 			 */
-			votes += plugin.getManager().getInt("votedata", user, "votes");
+			votes += VoteReceiverPlugin.instance.getManager().getInt("votedata", user, "votes");
 		}
 		/*
 		 * Write the header.
 		 */
 		sender.sendMessage("-=-=-=-=- " + ChatColor.YELLOW + "Vote Log Total Votes" + ChatColor.RESET + " -=-=-=-=-");
 		sender.sendMessage("");
-		if (plugin.opening != null) {
-			sender.sendMessage(ChatColor.RED + "" + votes + ChatColor.RESET + " votes since " + ChatColor.RED + plugin.opening.toString()
-					+ ChatColor.RESET + " " + zone + ".");
+		if (VoteReceiverPlugin.instance.opening != null) {
+			sender.sendMessage(ChatColor.RED + "" + votes + ChatColor.RESET + " votes since " + ChatColor.RED
+					+ VoteReceiverPlugin.instance.opening.toString() + ChatColor.RESET + " " + zone + ".");
 		} else {
 			sender.sendMessage(ChatColor.RED + "" + votes + ChatColor.RESET + " votes.");
 		}
@@ -90,15 +82,15 @@ public class DisplayCommand implements CommandExecutor {
 		/*
 		 * Iterate through the users in the database.
 		 */
-		for (String user : plugin.getManager().getKeys("votedata")) {
+		for (String user : VoteReceiverPlugin.instance.getManager().getKeys("votedata")) {
 			/*
 			 * Get their number of votes.
 			 */
-			int votes = plugin.getManager().getInt("votedata", user, "votes");
+			int votes = VoteReceiverPlugin.instance.getManager().getInt("votedata", user, "votes");
 			/*
 			 * Get their last vote timestamp and store everything.
 			 */
-			String last = plugin.getManager().getString("votedata", user, "last_vote");
+			String last = VoteReceiverPlugin.instance.getManager().getString("votedata", user, "last_vote");
 			output.put(user, votes);
 			crossinput.put(user, last);
 		}

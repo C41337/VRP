@@ -7,21 +7,35 @@ author: MrTeePee
 commands:
   vr:
     description: Display the top 10 voters.
+    permission: votes.view
+    permission-message: You don't have permission.
   vc:
     description: Display the number of votes made since voting opened.
+    permission: votes.view
+    permission-message: You don't have permission.
   vs:
     description: Spoof a vote.
+    permission: votes.spoof
+    permission-message: You don't have permission.
   vrc:
     description: Clear the voting log.
     aliases: vclear
+    permission: votes.clear
+    permission-message: You don't have permission.
   vro:
     description: Open voting.
     aliases: vopen
+    permission: votes.open
+    permission-message: You don't have permission.
   vrx:
     description: Close voting.
     aliases: vclose
+    permission: votes.close
+    permission-message: You don't have permission.
   vr (#):
     description: Display the top x voters.
+    permission: votes.view
+    permission-message: You don't have permission.
 
 permissions:
   votes.user:

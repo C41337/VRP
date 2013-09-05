@@ -17,7 +17,7 @@ public class VoteReceiverPlugin extends JavaPlugin {
 	private boolean openForVoting;
 	public java.util.Date opening, closing;
 	public static VoteReceiverPlugin instance;
-	private Scoreboard votedata;
+	public Scoreboard votedata;
 
 	@SuppressWarnings("deprecation")
 	public void onEnable() {
@@ -103,7 +103,8 @@ public class VoteReceiverPlugin extends JavaPlugin {
 		 */
 		ToggleCommand tc = new ToggleCommand(this);
 		DisplayCommand dc = new DisplayCommand(this);
-		getServer().getPluginManager().registerEvents(new VoteListener(this), this);
+		getServer().getPluginManager().registerEvents(new VoteListener(), this);
+		getServer().getPluginManager().registerEvents(new JoinListener(), this);
 		getCommand("vr").setExecutor(dc);
 		getCommand("vc").setExecutor(dc);
 		getCommand("vs").setExecutor(new SpoofCommand(this));

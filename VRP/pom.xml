@@ -8,6 +8,10 @@
       <id>bukkit-repo</id>
       <url>http://repo.bukkit.org/content/groups/public/</url>
     </repository>
+    <repository>
+      <id>votifier-repo</id>
+      <url>http://repo.sacredlabyrinth.net:8081/artifactory/remote-repos/com/</url>
+    </repository>
   </repositories>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -51,6 +55,11 @@
       <groupId>org.bukkit</groupId>
       <artifactId>craftbukkit</artifactId>
       <version>1.6.2-R0.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>vexsoftware</groupId>
+      <artifactId>votifier</artifactId>
+      <version>1.9</version>
     </dependency>
   </dependencies>
 </project>
