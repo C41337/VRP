@@ -6,26 +6,20 @@ import org.bukkit.command.CommandSender;
 
 public class ToggleCommand implements CommandExecutor {
 
-	private VoteReceiverPlugin plugin;
-
-	public ToggleCommand(VoteReceiverPlugin plugin) {
-		this.plugin = plugin;
-	}
-
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command.getName().equalsIgnoreCase("vro")) {
-			if (plugin.getManager() != null && plugin.getManager().isConnected()) {
-				if (!plugin.isOpen())
-					plugin.open(VoteReceiverPlugin.Cause.COMMAND);
+			if (VoteReceiverPlugin.instance.getManager() != null && VoteReceiverPlugin.instance.getManager().isConnected()) {
+				if (!VoteReceiverPlugin.instance.isOpen())
+					VoteReceiverPlugin.instance.open(VoteReceiverPlugin.Cause.COMMAND);
 				else
 					sender.sendMessage("Voting is already open.");
 				return true;
 			}
 		} else if (command.getName().equalsIgnoreCase("vrx"))
-			if (plugin.getManager() != null && plugin.getManager().isConnected()) {
-				if (plugin.isOpen())
-					plugin.close(VoteReceiverPlugin.Cause.COMMAND);
+			if (VoteReceiverPlugin.instance.getManager() != null && VoteReceiverPlugin.instance.getManager().isConnected()) {
+				if (VoteReceiverPlugin.instance.isOpen())
+					VoteReceiverPlugin.instance.close(VoteReceiverPlugin.Cause.COMMAND);
 				else
 					sender.sendMessage("Voting is already closed.");
 				return true;

@@ -100,14 +100,14 @@ public class VoteReceiverPlugin extends JavaPlugin {
 		/*
 		 * Register commands and listeners.
 		 */
-		ToggleCommand tc = new ToggleCommand(this);
-		DisplayCommand dc = new DisplayCommand(this);
+		ToggleCommand tc = new ToggleCommand();
+		DisplayCommand dc = new DisplayCommand();
 		getServer().getPluginManager().registerEvents(new VoteListener(), this);
 		getServer().getPluginManager().registerEvents(new JoinListener(), this);
 		getCommand("vr").setExecutor(dc);
 		getCommand("vc").setExecutor(dc);
-		getCommand("vs").setExecutor(new SpoofCommand(this));
-		getCommand("vrc").setExecutor(new ClearCommand(this));
+		getCommand("vs").setExecutor(new SpoofCommand());
+		getCommand("vrc").setExecutor(new ClearCommand());
 		getCommand("vrx").setExecutor(tc);
 		getCommand("vro").setExecutor(tc);
 
