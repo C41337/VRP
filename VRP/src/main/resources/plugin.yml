@@ -1,7 +1,7 @@
 name: VRP
 main: com.jordair.gmail.VoteReceiver.VoteReceiverPlugin
 version: 1.0
-depend: [SQLibrary, Votifier]
+depend: [Votifier]
 author: MrTeePee
 
 commands:
