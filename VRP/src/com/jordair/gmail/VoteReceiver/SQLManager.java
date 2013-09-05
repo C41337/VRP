@@ -1,6 +1,9 @@
 package com.jordair.gmail.VoteReceiver;
 
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
@@ -8,12 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import lib.PatPeter.SQLibrary.MySQL;
-
 @SuppressWarnings("unused")
 public class SQLManager {
 
-	private MySQL sql;
+	private Connection sql;
 	public final Logger logger;
 	public final String prefix, hostname, database, username, password;
 	public final int port;
@@ -50,24 +51,34 @@ public class SQLManager {
 		setup();
 	}
 
+	public void executeQuery(String username, String password, String databaseHost, String databaseName, int port, String query) {
+		Connection conn;
+		String url = "jdbc:mysql://" + databaseHost + ":" + port + "/" + databaseName;
+
+		// Attempt to connect
+		try {
+			// Connection succeeded
+			conn = DriverManager.getConnection(url, username, password);
+			PreparedStatement statement = conn.prepareStatement(query);
+			statement.executeQuery();
+		} catch (Exception e) {
+			// Couldn't connect to the database
+		}
+	}
+
 	/**
 	 * Establish connection with MySQL.
 	 */
 	public void connect() {
+		String url = "jdbc:mysql://" + hostname + ":" + port + "/" + database;
+
+		// Attempt to connect
 		try {
-			sql = new MySQL(logger, prefix, hostname, port, database, username, password);
-			sql.open();
-			if (sql.isOpen()) {
-				logger.info("Connected.");
-				connected = true;
-			} else {
-				logger.warning("Failed to connect.");
-				connected = false;
-			}
+			// Connection succeeded
+			sql = DriverManager.getConnection(url, username, password);
+			connected = true;
 		} catch (Exception e) {
-			logger.warning(e.getMessage());
-			logger.warning("Failed to connect.");
-			connected = false;
+			// Couldn't connect to the database
 		}
 	}
 
@@ -77,7 +88,11 @@ public class SQLManager {
 	public void disconnect() {
 		if (sql != null && connected) {
 			logger.info("Disconnected.");
-			sql.close();
+			try {
+				sql.close();
+			} catch (SQLException e) {
+				logger.warning("Unable to close SQL connection: " + e.getMessage());
+			}
 		}
 	}
 
@@ -105,9 +120,9 @@ public class SQLManager {
 	 * 
 	 * @param table
 	 *            The table name
-	 * @return true if deletion was successful
+	 * @return non null if deletion was successful
 	 */
-	public boolean emptyTable(String table) {
+	public ResultSet emptyTable(String table) {
 		return query("TRUNCATE TABLE " + table);
 	}
 
@@ -130,41 +145,14 @@ public class SQLManager {
 	 *            The command
 	 * @return If the command executed properly
 	 */
-	private boolean query(String cmd) {
-		if (!isConnected()) { return false; }
-		try {
-			sql.query(cmd);
-			return true;
-		} catch (Exception e) {
-			try {
-				connect();
-			} catch (Exception ex) {
-
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Query a MySQL command and receive a ResultSet
-	 * 
-	 * @param cmd
-	 *            The command
-	 * @return The ResultSet or null if the command failed.
-	 */
-	private ResultSet queryResponse(String cmd) {
+	private ResultSet query(String cmd) {
 		if (!isConnected()) { return null; }
 		try {
-			ResultSet result = sql.query(cmd);
-			return result;
-		} catch (Exception e) {
-			try {
-				connect();
-			} catch (Exception ex) {
-
-			}
+			PreparedStatement statement = sql.prepareStatement(cmd);
+			return statement.executeQuery();
+		} catch (Exception exc) {
+			return null;
 		}
-		return null;
 	}
 
 	/**
@@ -179,7 +167,7 @@ public class SQLManager {
 	private boolean isIn(String table, String name) {
 		if (!isConnected()) { return false; }
 		try {
-			return queryResponse("SELECT * FROM " + table + " WHERE username = '" + name + "' LIMIT 1").next();
+			return query("SELECT * FROM " + table + " WHERE username = '" + name + "' LIMIT 1").next();
 		} catch (Exception e) {
 			try {
 				connect();
@@ -202,7 +190,7 @@ public class SQLManager {
 		if (!isConnected()) { return null; }
 		List<String> list = new ArrayList<String>();
 		try {
-			ResultSet rs = queryResponse("SELECT * FROM " + table + " WHERE username != 'null'");
+			ResultSet rs = query("SELECT * FROM " + table + " WHERE username != 'null'");
 			if (rs != null) {
 				while (rs.next()) {
 					if (rs.getString("username") != null) {
@@ -237,7 +225,7 @@ public class SQLManager {
 	}
 
 	/**
-	 * Get a piece of data out of the MySQL database.
+	 * Get a piece of integer data out of the MySQL database.
 	 * 
 	 * @param table
 	 *            The table
@@ -245,12 +233,12 @@ public class SQLManager {
 	 *            The primary key
 	 * @param field
 	 *            The field
-	 * @return The object received or null if nothing found
+	 * @return The int received or 0 if nothing found
 	 */
-	public Object get(String table, String name, String field) {
+	public int getInt(String table, String name, String field) {
 		try {
-			ResultSet rs = queryResponse("SELECT * FROM " + table + " WHERE username = '" + name + "' LIMIT 1");
-			if (rs.next()) { return rs.getObject(field); }
+			ResultSet rs = query("SELECT * FROM " + table + " WHERE username = '" + name + "' LIMIT 1");
+			if (rs.next()) { return rs.getInt(field); }
 		} catch (Exception e) {
 			try {
 				connect();
@@ -258,6 +246,31 @@ public class SQLManager {
 
 			}
 		}
-		return null;
+		return 0;
+	}
+
+	/**
+	 * Get a piece of string data out of the MySQL database.
+	 * 
+	 * @param table
+	 *            The table
+	 * @param name
+	 *            The primary key
+	 * @param field
+	 *            The field
+	 * @return The string received or an empty string if nothing found
+	 */
+	public String getString(String table, String name, String field) {
+		try {
+			ResultSet rs = query("SELECT * FROM " + table + " WHERE username = '" + name + "' LIMIT 1");
+			if (rs.next()) { return rs.getObject(field) + ""; }
+		} catch (Exception e) {
+			try {
+				connect();
+			} catch (Exception ex) {
+
+			}
+		}
+		return "";
 	}
 }

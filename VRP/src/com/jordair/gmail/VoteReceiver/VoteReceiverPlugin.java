@@ -4,19 +4,30 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.Calendar;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Scoreboard;
 
 public class VoteReceiverPlugin extends JavaPlugin {
 
 	private SQLManager manager;
 	private boolean openForVoting;
 	public java.util.Date opening, closing;
+	public static VoteReceiverPlugin instance;
+	private Scoreboard votedata;
 
 	@SuppressWarnings("deprecation")
 	public void onEnable() {
+		instance = this;
 		saveDefaultConfig();
+
+		votedata = Bukkit.getScoreboardManager().getNewScoreboard();
+		votedata.registerNewObjective("votes", "dummy").setDisplayName(ChatColor.YELLOW + "Top Voters");
+		votedata.getObjective("votes").setDisplaySlot(DisplaySlot.SIDEBAR);
+
 		/*
 		 * Load the schedule data.
 		 */
@@ -159,6 +170,25 @@ public class VoteReceiverPlugin extends JavaPlugin {
 		}
 		getLogger().info("Voting was enabled.");
 		alert(ChatColor.YELLOW + "Voting has been enabled!");
+		
+		try {
+			votedata.getObjective("votes").unregister();
+			// Extraneous calls because I don't know exactly how the scoreboard
+			// behaves...
+			votedata.clearSlot(DisplaySlot.SIDEBAR);
+		} catch (IllegalStateException exc) {
+
+		}
+		votedata.clearSlot(DisplaySlot.SIDEBAR);
+		votedata.registerNewObjective("votes", "dummy");
+		
+		for (String s : getManager().getKeys("votedata")) {
+			votedata.getObjective("votes").getScore(Bukkit.getOfflinePlayer(ChatColor.GRAY + s))
+					.setScore(getManager().getInt("votedata", s, "votes"));
+		}
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			p.setScoreboard(votedata);
+		}
 	}
 
 	public void close(Cause cause) {

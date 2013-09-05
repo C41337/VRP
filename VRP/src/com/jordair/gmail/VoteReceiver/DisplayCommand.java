@@ -58,10 +58,7 @@ public class DisplayCommand implements CommandExecutor {
 			/*
 			 * Get their number of votes and add it to the total.
 			 */
-			Object o = plugin.getManager().get("votedata", user, "votes");
-			if (o instanceof Integer) {
-				votes += (Integer) o;
-			}
+			votes += plugin.getManager().getInt("votedata", user, "votes");
 		}
 		/*
 		 * Write the header.
@@ -97,15 +94,11 @@ public class DisplayCommand implements CommandExecutor {
 			/*
 			 * Get their number of votes.
 			 */
-			Object o = plugin.getManager().get("votedata", user, "votes");
-			int votes = 0;
-			if (o instanceof Integer) {
-				votes = (Integer) o;
-			}
+			int votes = plugin.getManager().getInt("votedata", user, "votes");
 			/*
 			 * Get their last vote timestamp and store everything.
 			 */
-			String last = plugin.getManager().get("votedata", user, "last_vote") + "";
+			String last = plugin.getManager().getString("votedata", user, "last_vote");
 			output.put(user, votes);
 			crossinput.put(user, last);
 		}
