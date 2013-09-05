@@ -16,23 +16,20 @@ public class ToggleCommand implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command.getName().equalsIgnoreCase("vro")) {
 			if (plugin.getManager() != null && plugin.getManager().isConnected()) {
-				if (!plugin.isOpen()) {
+				if (!plugin.isOpen())
 					plugin.open(VoteReceiverPlugin.Cause.COMMAND);
-				} else {
+				else
 					sender.sendMessage("Voting is already open.");
-				}
 				return true;
 			}
-		} else if (command.getName().equalsIgnoreCase("vrx")) {
+		} else if (command.getName().equalsIgnoreCase("vrx"))
 			if (plugin.getManager() != null && plugin.getManager().isConnected()) {
-				if (plugin.isOpen()) {
+				if (plugin.isOpen())
 					plugin.close(VoteReceiverPlugin.Cause.COMMAND);
-				} else {
+				else
 					sender.sendMessage("Voting is already closed.");
-				}
 				return true;
 			}
-		}
 
 		return false;
 	}

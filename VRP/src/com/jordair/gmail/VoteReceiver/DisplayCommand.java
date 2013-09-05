@@ -18,19 +18,17 @@ public class DisplayCommand implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (VoteReceiverPlugin.instance.getManager() != null && VoteReceiverPlugin.instance.getManager().isConnected()) {
+		if (VoteReceiverPlugin.instance.getManager() != null && VoteReceiverPlugin.instance.getManager().isConnected())
 			if (command.getName().equalsIgnoreCase("vr")) {
 				displayVotes(sender, args);
 				return true;
 			} else if (command.getName().equalsIgnoreCase("vc")) {
-				if (VoteReceiverPlugin.instance.isOpen()) {
+				if (VoteReceiverPlugin.instance.isOpen())
 					displayTotal(sender);
-				} else {
+				else
 					sender.sendMessage("Voting is not open at the moment.");
-				}
 				return true;
 			}
-		}
 
 		return false;
 	}
@@ -46,23 +44,21 @@ public class DisplayCommand implements CommandExecutor {
 		 * Iterate through the users in the database.
 		 */
 		int votes = 0;
-		for (String user : VoteReceiverPlugin.instance.getManager().getKeys("votedata")) {
+		for (String user : VoteReceiverPlugin.instance.getManager().getKeys("votedata"))
 			/*
 			 * Get their number of votes and add it to the total.
 			 */
 			votes += VoteReceiverPlugin.instance.getManager().getInt("votedata", user, "votes");
-		}
 		/*
 		 * Write the header.
 		 */
 		sender.sendMessage("-=-=-=-=- " + ChatColor.YELLOW + "Vote Log Total Votes" + ChatColor.RESET + " -=-=-=-=-");
 		sender.sendMessage("");
-		if (VoteReceiverPlugin.instance.opening != null) {
+		if (VoteReceiverPlugin.instance.opening != null)
 			sender.sendMessage(ChatColor.RED + "" + votes + ChatColor.RESET + " votes since " + ChatColor.RED
 					+ VoteReceiverPlugin.instance.opening.toString() + ChatColor.RESET + " " + zone + ".");
-		} else {
+		else
 			sender.sendMessage(ChatColor.RED + "" + votes + ChatColor.RESET + " votes.");
-		}
 	}
 
 	/**
@@ -105,13 +101,12 @@ public class DisplayCommand implements CommandExecutor {
 		 */
 		int amt = 0;
 		int max = 0;
-		if (args.length == 1) {
+		if (args.length == 1)
 			try {
 				max = Integer.parseInt(args[0]);
 			} catch (NumberFormatException exc) {
 				max = 0;
 			}
-		}
 		/*
 		 * Write the header.
 		 */
@@ -125,14 +120,13 @@ public class DisplayCommand implements CommandExecutor {
 			/*
 			 * Reach limit, finish outputting.
 			 */
-			if ((max > 0 && amt >= max) || (max == 0 && amt >= 10)) {
+			if (max > 0 && amt >= max || max == 0 && amt >= 10)
 				continue;
-			}
 			String last = crossinput.get(s);
 			Date d = new Date();
 			try {
 				d.setTime(Long.parseLong(last) * 1000);
-				last = (d.getYear() + 1900) + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.getHours() + ":"
+				last = d.getYear() + 1900 + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + d.getHours() + ":"
 						+ (d.getMinutes() > 9 ? d.getMinutes() : "0" + d.getMinutes()) + ":"
 						+ (d.getSeconds() > 9 ? d.getSeconds() : "0" + d.getSeconds());
 			} catch (Exception e) {
@@ -157,12 +151,12 @@ public class DisplayCommand implements CommandExecutor {
 			this.base = base;
 		}
 
+		@Override
 		public int compare(String a, String b) {
-			if (base.get(a) >= base.get(b)) {
+			if (base.get(a) >= base.get(b))
 				return -1;
-			} else {
+			else
 				return 1;
-			}
 		}
 	}
 }

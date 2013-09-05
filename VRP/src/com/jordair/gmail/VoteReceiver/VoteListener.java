@@ -17,12 +17,14 @@ public class VoteListener implements Listener {
 	 */
 	@EventHandler
 	private void onVoteMade(VotifierEvent e) {
-		if (!VoteReceiverPlugin.instance.isOpen()) { return; }
+		if (!VoteReceiverPlugin.instance.isOpen())
+			return;
 		/*
 		 * Get the Vote made.
 		 */
 		Vote v = e.getVote();
-		if (v.getUsername().equalsIgnoreCase("anonymous")) { return; }
+		if (v.getUsername().equalsIgnoreCase("anonymous"))
+			return;
 		if (VoteReceiverPlugin.instance.getManager() != null && VoteReceiverPlugin.instance.getManager().isConnected()) {
 			/*
 			 * Add the voter to the database (if not currently in).

@@ -1,12 +1,10 @@
 package com.jordair.gmail.VoteReceiver;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -107,7 +105,8 @@ public class SQLManager {
 	 * Create tables.
 	 */
 	public void setup() {
-		if (!isConnected()) { return; }
+		if (!isConnected())
+			return;
 		try {
 			logger.info("Setting up MySQL.");
 			query("CREATE TABLE IF NOT EXISTS votedata (username VARCHAR(25) PRIMARY KEY, votes INT, last_vote VARCHAR(35))");
@@ -133,9 +132,8 @@ public class SQLManager {
 	 *            The username to add
 	 */
 	public void add(String user) {
-		if (!isIn("votedata", user)) {
+		if (!isIn("votedata", user))
 			query("INSERT INTO votedata (username) VALUES ('" + user + "')");
-		}
 	}
 
 	/**
@@ -146,7 +144,8 @@ public class SQLManager {
 	 * @return If the command executed properly
 	 */
 	private ResultSet query(String cmd) {
-		if (!isConnected()) { return null; }
+		if (!isConnected())
+			return null;
 		try {
 			PreparedStatement statement = sql.prepareStatement(cmd);
 			return statement.executeQuery();
@@ -165,7 +164,8 @@ public class SQLManager {
 	 * @return true if the user is in the table.
 	 */
 	private boolean isIn(String table, String name) {
-		if (!isConnected()) { return false; }
+		if (!isConnected())
+			return false;
 		try {
 			return query("SELECT * FROM " + table + " WHERE username = '" + name + "' LIMIT 1").next();
 		} catch (Exception e) {
@@ -187,17 +187,15 @@ public class SQLManager {
 	 *         null if not connected.
 	 */
 	public List<String> getKeys(String table) {
-		if (!isConnected()) { return null; }
+		if (!isConnected())
+			return null;
 		List<String> list = new ArrayList<String>();
 		try {
 			ResultSet rs = query("SELECT * FROM " + table + " WHERE username != 'null'");
-			if (rs != null) {
-				while (rs.next()) {
-					if (rs.getString("username") != null) {
+			if (rs != null)
+				while (rs.next())
+					if (rs.getString("username") != null)
 						list.add(rs.getString("username"));
-					}
-				}
-			}
 		} catch (Exception e) {
 			try {
 				connect();
@@ -238,7 +236,8 @@ public class SQLManager {
 	public int getInt(String table, String name, String field) {
 		try {
 			ResultSet rs = query("SELECT * FROM " + table + " WHERE username = '" + name + "' LIMIT 1");
-			if (rs.next()) { return rs.getInt(field); }
+			if (rs.next())
+				return rs.getInt(field);
 		} catch (Exception e) {
 			try {
 				connect();
@@ -263,7 +262,8 @@ public class SQLManager {
 	public String getString(String table, String name, String field) {
 		try {
 			ResultSet rs = query("SELECT * FROM " + table + " WHERE username = '" + name + "' LIMIT 1");
-			if (rs.next()) { return rs.getObject(field) + ""; }
+			if (rs.next())
+				return rs.getObject(field) + "";
 		} catch (Exception e) {
 			try {
 				connect();

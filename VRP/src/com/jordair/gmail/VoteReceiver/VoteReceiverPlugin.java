@@ -19,6 +19,7 @@ public class VoteReceiverPlugin extends JavaPlugin {
 	public static VoteReceiverPlugin instance;
 	public Scoreboard votedata;
 
+	@Override
 	@SuppressWarnings("deprecation")
 	public void onEnable() {
 		instance = this;
@@ -69,20 +70,18 @@ public class VoteReceiverPlugin extends JavaPlugin {
 				getServer().getPluginManager().disablePlugin(this);
 				return;
 			}
-		} else {
+		} else
 			open(Cause.SERVER_START);
-		}
 
 		/*
 		 * Check if already closed.
 		 */
-		if (closing != null) {
+		if (closing != null)
 			if (closing.compareTo(new java.util.Date()) < 0) {
 				getLogger().info("Set to close prior to today.");
 				getServer().getPluginManager().disablePlugin(this);
 				return;
 			}
-		}
 
 		/*
 		 * Connect to SQL.
@@ -120,33 +119,33 @@ public class VoteReceiverPlugin extends JavaPlugin {
 			/*
 			 * Already supposed to be open so open voting.
 			 */
-			if (opening.before(new java.util.Date())) {
+			if (opening.before(new java.util.Date()))
 				open(Cause.SERVER_START);
-			} else {
+			else
 				/*
 				 * Open voting later.
 				 */
 				getServer().getScheduler().runTaskLater(this, new Runnable() {
+					@Override
 					public void run() {
 						open(Cause.SCHEDULED);
 					}
-				}, (int) (Math.ceil((opening.getTime() - now) / 1000d)) * 20L);
-			}
-			if (closing != null) {
+				}, (int) Math.ceil((opening.getTime() - now) / 1000d) * 20L);
+			if (closing != null)
 				/*
 				 * Close voting later.
 				 */
 				getServer().getScheduler().runTaskLater(this, new Runnable() {
+					@Override
 					public void run() {
 						close(Cause.SCHEDULED);
 					}
-				}, (int) (Math.ceil((closing.getTime() - now) / 1000d)) * 20L);
-			}
-		} else {
+				}, (int) Math.ceil((closing.getTime() - now) / 1000d) * 20L);
+		} else
 			opening = new java.util.Date();
-		}
 	}
 
+	@Override
 	public void onDisable() {
 		reloadConfig();
 		getLogger().info("Disabling VoteReceiver. No longer listening on votes.");
@@ -154,9 +153,8 @@ public class VoteReceiverPlugin extends JavaPlugin {
 		/*
 		 * Disconnect from SQL.
 		 */
-		if (manager != null && manager.isConnected()) {
+		if (manager != null && manager.isConnected())
 			manager.disconnect();
-		}
 	}
 
 	public boolean isOpen() {
@@ -171,7 +169,7 @@ public class VoteReceiverPlugin extends JavaPlugin {
 		}
 		getLogger().info("Voting was enabled.");
 		alert(ChatColor.YELLOW + "Voting has been enabled!");
-		
+
 		try {
 			votedata.getObjective("votes").unregister();
 			// Extraneous calls because I don't know exactly how the scoreboard
@@ -182,14 +180,12 @@ public class VoteReceiverPlugin extends JavaPlugin {
 		}
 		votedata.clearSlot(DisplaySlot.SIDEBAR);
 		votedata.registerNewObjective("votes", "dummy");
-		
-		for (String s : getManager().getKeys("votedata")) {
+
+		for (String s : getManager().getKeys("votedata"))
 			votedata.getObjective("votes").getScore(Bukkit.getOfflinePlayer(ChatColor.GRAY + s))
 					.setScore(getManager().getInt("votedata", s, "votes"));
-		}
-		for (Player p : Bukkit.getOnlinePlayers()) {
+		for (Player p : Bukkit.getOnlinePlayers())
 			p.setScoreboard(votedata);
-		}
 	}
 
 	public void close(Cause cause) {
@@ -218,12 +214,9 @@ public class VoteReceiverPlugin extends JavaPlugin {
 	 *            The message.
 	 */
 	public void alert(String string) {
-		if (getConfig().getBoolean("Alert_on_vote")) {
-			for (Player p : getServer().getOnlinePlayers()) {
-				if (p.hasPermission("votes.alert")) {
+		if (getConfig().getBoolean("Alert_on_vote"))
+			for (Player p : getServer().getOnlinePlayers())
+				if (p.hasPermission("votes.alert"))
 					p.sendMessage(string);
-				}
-			}
-		}
 	}
 }
