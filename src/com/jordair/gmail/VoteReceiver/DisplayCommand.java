@@ -100,17 +100,17 @@ public class DisplayCommand implements CommandExecutor {
 		 * Determine how many scores to output.
 		 */
 		int amt = 0;
-		int max = 0;
+		int max = 10;
 		if (args.length == 1)
 			try {
 				max = Integer.parseInt(args[0]);
 			} catch (NumberFormatException exc) {
-				max = 0;
+				max = 10;
 			}
 		/*
 		 * Write the header.
 		 */
-		sender.sendMessage("-=-=-=-=- " + ChatColor.YELLOW + "Vote Log Top " + ChatColor.RED + (max != 0 ? "" + max : "10")
+		sender.sendMessage("-=-=-=-=- " + ChatColor.YELLOW + "Vote Log Top " + ChatColor.RED + (max != 10 ? "" + max : "10")
 				+ ChatColor.RESET + " -=-=-=-=-");
 		sender.sendMessage("");
 		/*

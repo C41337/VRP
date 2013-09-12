@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-@SuppressWarnings("unused")
 public class SQLManager {
 
 	private Connection sql;
@@ -49,18 +48,11 @@ public class SQLManager {
 		setup();
 	}
 
-	public void executeQuery(String username, String password, String databaseHost, String databaseName, int port, String query) {
-		Connection conn;
-		String url = "jdbc:mysql://" + databaseHost + ":" + port + "/" + databaseName;
-
-		// Attempt to connect
+	public void executeQuery(String query) {
 		try {
-			// Connection succeeded
-			conn = DriverManager.getConnection(url, username, password);
-			PreparedStatement statement = conn.prepareStatement(query);
-			statement.executeQuery();
-		} catch (Exception e) {
-			// Couldn't connect to the database
+			sql.createStatement().executeUpdate(query);
+		} catch (SQLException e) {
+			// Unable to do. Dispose silently.
 		}
 	}
 
@@ -109,7 +101,7 @@ public class SQLManager {
 			return;
 		try {
 			logger.info("Setting up MySQL.");
-			query("CREATE TABLE IF NOT EXISTS votedata (username VARCHAR(25) PRIMARY KEY, votes INT, last_vote VARCHAR(35))");
+			executeQuery("CREATE TABLE IF NOT EXISTS votedata (username VARCHAR(25) PRIMARY KEY, votes INT, last_vote VARCHAR(35))");
 		} catch (Exception e) {
 		}
 	}
@@ -133,7 +125,7 @@ public class SQLManager {
 	 */
 	public void add(String user) {
 		if (!isIn("votedata", user))
-			query("INSERT INTO votedata (username) VALUES ('" + user + "')");
+			executeQuery("INSERT INTO votedata (username) VALUES ('" + user + "')");
 	}
 
 	/**
@@ -147,8 +139,7 @@ public class SQLManager {
 		if (!isConnected())
 			return null;
 		try {
-			PreparedStatement statement = sql.prepareStatement(cmd);
-			return statement.executeQuery();
+			return sql.createStatement().executeQuery(cmd);
 		} catch (Exception exc) {
 			return null;
 		}
@@ -219,7 +210,7 @@ public class SQLManager {
 	 *            The value
 	 */
 	public void set(String table, String name, String field, Object value) {
-		query("UPDATE " + table + " SET " + field + " = " + value + " WHERE username = '" + name + "' LIMIT 1");
+		executeQuery("UPDATE " + table + " SET " + field + " = " + value + " WHERE username = '" + name + "' LIMIT 1");
 	}
 
 	/**

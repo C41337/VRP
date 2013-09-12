@@ -2,13 +2,20 @@ package com.jordair.gmail.VoteReceiver;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
 public class VoteReceiverPlugin extends JavaPlugin {
@@ -18,6 +25,7 @@ public class VoteReceiverPlugin extends JavaPlugin {
 	public java.util.Date opening, closing;
 	public static VoteReceiverPlugin instance;
 	public Scoreboard votedata;
+	private Objective o;
 
 	@Override
 	@SuppressWarnings("deprecation")
@@ -26,8 +34,15 @@ public class VoteReceiverPlugin extends JavaPlugin {
 		saveDefaultConfig();
 
 		votedata = Bukkit.getScoreboardManager().getNewScoreboard();
-		votedata.registerNewObjective("votes", "dummy").setDisplayName(ChatColor.YELLOW + "Top Voters");
-		votedata.getObjective("votes").setDisplaySlot(DisplaySlot.SIDEBAR);
+		o = votedata.registerNewObjective("votes", "dummy");
+		o.setDisplayName(ChatColor.YELLOW + "Top Voters");
+		o.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+		/*
+		 * Connect to SQL.
+		 */
+		manager = new SQLManager(getLogger(), "[VRP]", getConfig().getString("SQL.HOST"), getConfig().getInt("SQL.PORT"), getConfig()
+				.getString("SQL.DATABASE"), getConfig().getString("SQL.USER"), getConfig().getString("SQL.PASS"));
 
 		/*
 		 * Load the schedule data.
@@ -82,12 +97,6 @@ public class VoteReceiverPlugin extends JavaPlugin {
 				getServer().getPluginManager().disablePlugin(this);
 				return;
 			}
-
-		/*
-		 * Connect to SQL.
-		 */
-		manager = new SQLManager(getLogger(), "[VRP]", getConfig().getString("SQL.HOST"), getConfig().getInt("SQL.PORT"), getConfig()
-				.getString("SQL.DATABASE"), getConfig().getString("SQL.USER"), getConfig().getString("SQL.PASS"));
 
 		/*
 		 * Disable if not connected.
@@ -170,22 +179,77 @@ public class VoteReceiverPlugin extends JavaPlugin {
 		getLogger().info("Voting was enabled.");
 		alert(ChatColor.YELLOW + "Voting has been enabled!");
 
-		try {
-			votedata.getObjective("votes").unregister();
-			// Extraneous calls because I don't know exactly how the scoreboard
-			// behaves...
-			votedata.clearSlot(DisplaySlot.SIDEBAR);
-		} catch (IllegalStateException exc) {
-
+		if (getManager() != null && getManager().isConnected()) {
+			refreshVoteData();
 		}
-		votedata.clearSlot(DisplaySlot.SIDEBAR);
-		votedata.registerNewObjective("votes", "dummy");
+	}
 
-		for (String s : getManager().getKeys("votedata"))
-			votedata.getObjective("votes").getScore(Bukkit.getOfflinePlayer(ChatColor.GRAY + s))
-					.setScore(getManager().getInt("votedata", s, "votes"));
-		for (Player p : Bukkit.getOnlinePlayers())
-			p.setScoreboard(votedata);
+	public void refreshVoteData() {
+		getServer().getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
+			public void run() {
+				votedata = Bukkit.getScoreboardManager().getNewScoreboard();
+				o = votedata.registerNewObjective("votes", "dummy");
+				o.setDisplayName(ChatColor.YELLOW + "Top Voters");
+				o.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+				int i = 0;
+
+				for (String s : getTop10()) {
+					if (i < 10)
+						o.getScore(Bukkit.getOfflinePlayer(s)).setScore(getManager().getInt("votedata", s, "votes"));
+					i++;
+				}
+				for (Player p : Bukkit.getOnlinePlayers())
+					p.setScoreboard(votedata);
+			}
+		}, 0L);
+	}
+
+	private List<String> getTop10() {
+		if (getManager() == null || !getManager().isConnected()) { return new ArrayList<String>(); }
+		Map<String, Integer> output = new HashMap<String, Integer>();
+
+		/*
+		 * Iterate through the users in the database.
+		 */
+		for (String user : getManager().getKeys("votedata")) {
+			/*
+			 * Get their number of votes.
+			 */
+			int votes = getManager().getInt("votedata", user, "votes");
+			output.put(user, votes);
+		}
+		/*
+		 * Sort the users by descending order of votes.
+		 */
+		ValueComparator bvc = new ValueComparator(output);
+		TreeMap<String, Integer> sorted = new TreeMap<String, Integer>(bvc);
+		sorted.putAll(output);
+		List<String> returned = new ArrayList<String>();
+		for (String s : sorted.keySet()) {
+			returned.add(s);
+		}
+		return returned;
+	}
+
+	/**
+	 * Sorts a map by integer value in descending order.
+	 */
+	public class ValueComparator implements Comparator<String> {
+
+		Map<String, Integer> base;
+
+		public ValueComparator(Map<String, Integer> base) {
+			this.base = base;
+		}
+
+		@Override
+		public int compare(String a, String b) {
+			if (base.get(a) >= base.get(b))
+				return -1;
+			else
+				return 1;
+		}
 	}
 
 	public void close(Cause cause) {

@@ -41,6 +41,7 @@ public class VoteListener implements Listener {
 			VoteReceiverPlugin.instance.getManager().set("votedata", v.getUsername(), "last_vote", "'" + v.getTimeStamp() + "'");
 			VoteReceiverPlugin.instance.alert(v.getUsername() + " now has " + ChatColor.DARK_RED + (votes + 1) + ChatColor.RESET
 					+ " votes.");
+			VoteReceiverPlugin.instance.refreshVoteData();
 		}
 	}
 }
